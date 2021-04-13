@@ -15,7 +15,7 @@ import math
 class Picar_X():
   def __init__(self):
     self.PERIOD = 4095
-    self.PRESCALER = 10
+    PRESCALER = 10
 #    TIMEOUT = 0.02
     
     self.dir_servo_pin = Servo(PWM('P2'))
@@ -42,13 +42,13 @@ class Picar_X():
     #初始化PWM引脚
     
     #MC edited 4/8: make the current steering angle known
-    self.dir_curr_value = dir_cal_value
+    self.dir_curr_value = self.dir_cal_value
     
     atexit.register(self.cleanup)
   
-  for pin in motor_speed_pins:
-      pin.period(self.PERIOD)
-      pin.PRESCALER(self.PRESCALER)
+    for pin in self.motor_speed_pins:
+        pin.period(self.PERIOD)
+        pin.prescaler(PRESCALER)
   
   def set_motor_speed(self, motor, speed):
       motor -= 1
@@ -91,7 +91,7 @@ class Picar_X():
   #MC edited 4/8: update the current steering angle
   def set_dir_servo_angle(self, value):
       self.dir_curr_value= value
-      self.dir_servo_pin.angle(dir_curr_value+dir_cal_value)
+      self.dir_servo_pin.angle(self.dir_curr_value+self.dir_cal_value)
   
   def camera_servo1_angle_calibration(self, value):
       self.cam_cal_value_1 = value
