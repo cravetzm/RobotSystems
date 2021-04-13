@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-
 import time
 try:
     from  ezblock  import *
-    __reset_mcu__ ()
-    time.sleep (0.01)
+    #__reset_mcu__()
+    #time.sleep (0.01)
 except  ImportError:
     print ("This  computer  does  not  appear  to be a PiCar -X system \
            (/opt/ezblock  is not  present). Shadowing  hardware  calls \
@@ -30,7 +29,8 @@ S1 = ADC('A1')
 S2 = ADC('A2')
 
 Servo_dir_flag = 1
-dir_cal_value = 0
+#MC edited 4/8: car pulls ~14 degrees to the left naaturally
+dir_cal_value = 14
 cam_cal_value_1 = 0
 cam_cal_value_2 = 0
 motor_direction_pins = [left_rear_dir_pin, right_rear_dir_pin]
@@ -38,6 +38,10 @@ motor_speed_pins = [left_rear_pwm_pin, right_rear_pwm_pin]
 cali_dir_value = [1, -1]
 cali_speed_value = [0, 0]
 #初始化PWM引脚
+
+#MC edited 4/8: make the current steering angle known
+dir_curr_value = dir_cal_value
+
 for pin in motor_speed_pins:
     pin.period(PERIOD)
     pin.prescaler(PRESCALER)
@@ -84,9 +88,12 @@ def dir_servo_angle_calibration(value):
     set_dir_servo_angle(dir_cal_value)
     # dir_servo_pin.angle(dir_cal_value)
 
+#MC edited 4/8: update the current steering angle
 def set_dir_servo_angle(value):
     global dir_cal_value
-    dir_servo_pin.angle(value+dir_cal_value)
+    global dir_curr_value 
+    dir_curr_value= value
+    dir_servo_pin.angle(dir_curr_value+dir_cal_value)
 
 def camera_servo1_angle_calibration(value):
     global cam_cal_value_1
@@ -119,13 +126,33 @@ def set_power(speed):
     set_motor_speed(1, speed)
     set_motor_speed(2, speed) 
 
+#MC edited 4/8 to account for turns
 def backward(speed):
-    set_motor_speed(1, speed)
-    set_motor_speed(2, speed)
+    global dir_curr_value 
+    rad = math.pi*dir_curr_value / 180
+    speed_diff = 0.5625*abs(math.tan(rad))
+    inside_speed = speed * (1 - speed_diff)
+    outside_speed = speed * (1 + speed_diff)
+    if (dir_curr_value >= 0):
+      set_motor_speed(1, outside_speed)
+      set_motor_speed(2, inside_speed)
+    else:
+      set_motor_speed(1, inside_speed)
+      set_motor_speed(2, outside_speed)
 
+#MC edited 4/8 to account for turns
 def forward(speed):
-    set_motor_speed(1, -1*speed)
-    set_motor_speed(2, -1*speed)
+    global dir_curr_value 
+    rad = math.pi*abs(dir_curr_value) / 180
+    speed_diff = 0.5625*math.tan(rad)
+    inside_speed = speed * (1 - speed_diff)
+    outside_speed = speed * (1 + speed_diff)
+    if (dir_curr_value >= 0):
+      set_motor_speed(1, -1*inside_speed)
+      set_motor_speed(2, -1*outside_speed)
+    else:
+      set_motor_speed(1, -1*outside_speed)
+      set_motor_speed(2, -1*inside_speed)
 
 def stop():
     set_motor_speed(1, 0)
@@ -168,14 +195,6 @@ def test():
     # set_motor_speed(2, 1)
     # camera_servo_pin.angle(0)
 
-
-# if __name__ == "__main__":
-#     try:
-#         # dir_servo_angle_calibration(-10) 
-#         while 1:
-#             test()
-#     finally: 
-#         stop()
 
 #MC added this on 4-8 to stop the motors from running after a program terminates    
 atexit.register(stop)

@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Apr  7 12:22:36 2021
 
-@author: Miranda
-"""
+#!/usr/bin/env python3
+
 import sys
 sys.path.append("D:/Documents/OSU Classes/RobotSystems/ezblock") 
 from basic import _Basic_class
