@@ -21,8 +21,8 @@ class PicarXInterpreter():
         
     def process_reading(self, reading):
         #find the difference between adjacent readings
-        sensor_grad = np.diff(np.array(reading)) #[line to right skew, line to left skew] if polarity is 1
-        total_skew = self.polarity * (sensor_grad[0] - sensor_grad[1])
+        sensor_grad = np.diff(np.array(reading)/1024) #[line to right skew, line to left skew] if polarity is 1
+        total_skew = self.polarity * sum(sensor_grad)
         #adjust for brightness (brightness is 0 to 1, so divide to boost low contrast)
         adjusted_total_skew = total_skew / self.brightness
         #cap the value from -1 to 1 (todo: tune well enough that this is not needed)

@@ -135,11 +135,11 @@ class Picar_X():
   
   #MC edited 4/8 to account for turns
   def forward(self, speed):
-      rad = math.pi*abs(dir_curr_value) / 180
+      rad = math.pi*abs(self.dir_curr_value) / 180
       speed_diff = 0.5625*math.tan(rad)
       inside_speed = speed * (1 - speed_diff)
       outside_speed = speed * (1 + speed_diff)
-      if (dir_curr_value >= 0):
+      if (self.dir_curr_value >= 0):
         self.set_motor_speed(1, -1*inside_speed)
         self.set_motor_speed(2, -1*outside_speed)
       else:

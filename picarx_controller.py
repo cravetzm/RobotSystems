@@ -12,9 +12,9 @@ except  ImportError:
     
 from picarx_improved_class import Picar_X
 
-class PicarXInterpreter():
+class PicarXController():
     
-    def __init__(self, kp=20):
+    def __init__(self, kp=100):
         self.kp = kp
         self.car = Picar_X()
     
