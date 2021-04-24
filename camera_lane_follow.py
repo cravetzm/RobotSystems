@@ -7,7 +7,8 @@ except  ImportError:
            (/opt/ezblock  is not  present). Shadowing  hardware  calls \
             with  substitute  functions ")
     from  sim_ezblock  import *
-    
+
+from maneuvering import *
 
 import cv2
 
@@ -100,6 +101,7 @@ def display_lines(frame, lines, line_color=(0, 255, 0), line_width=2):
     line_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
     return line_image
 
+
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -121,23 +123,35 @@ while(True):
     # detect lines from edges
     lane_lines = detect_line_segments(lane_edges)
     
-    #lane_lines_smooth = average_slope_intercept(frame, lane_lines)
+    lane_lines_smooth = average_slope_intercept(frame, lane_lines)
     
-    #lane_lines_image = display_lines(frame, lane_lines_smooth)
-    #cv2.imshow("lane lines", lane_lines_image)
-    # Display the frame with the lines
-    #count = 1
+    lane_lines_image = display_lines(frame, lane_lines_smooth)
+    cv2.imshow("lane lines", lane_lines_image)
+     Display the frame with the lines
+    count = 1
     
-    #print("image {}".format(count))
-    #print(lane_lines)
-#    for x1,y1,x2,y2 in lane_lines:
-#        print("{} lines".format(count))
-#        count = count+1
-#        cv2.line(lane_edges,(x1,y1),(x2,y2),(0,255,0),2)
+    print("image {}".format(count))
+    print(lane_lines)
+    for x1,y1,x2,y2 in lane_lines:
+        print("{} lines".format(count))
+        count = count+1
+        cv2.line(lane_edges,(x1,y1),(x2,y2),(0,255,0),2)
     
     cv2.imshow('blue areas',all_edges)
     if cv2.waitKey(1) & 0xFF == ord('q'):        
       break
+      
+    _, _, left_x2, _ = lane_lines_smooth[0][0]
+    _, _, right_x2, _ = lane_lines_smooth[1][0]
+    mid = int(width / 2)
+    x_offset = (left_x2 + right_x2) / 2 - mid
+    y_offset = int(height / 2)
+    
+    angle_to_mid_radian = math.atan(x_offset / y_offset)  # angle (in radian) to center vertical line
+    angle_to_mid_deg = int(angle_to_mid_radian * 180.0 / math.pi)  # angle (in degrees) to center vertical line
+    
+    go_forward(angle_to_mid_deg)
+
     #cv2.imshow('blue areas',mask)
     
 #    if cv2.waitKey(1) & 0xFF == ord('q'):
